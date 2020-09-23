@@ -34,8 +34,8 @@ battle (Battlefield a d) = do
     attackerRolls <- generateRolls $ maxAttacks a
     defenderRolls <- generateRolls $ maxDefends d
     let diffs = getDiffs attackerRolls defenderRolls
-        newAttackers = a + attackerWins diffs
-        newDefenders = d + defenderWins diffs
+        newAttackers = a - defenderWins diffs
+        newDefenders = d - attackerWins diffs
     pure $ Battlefield newAttackers newDefenders
 
 maxAttacks :: Army -> Army
@@ -56,3 +56,15 @@ defenderWins = length . filter (<=0)
 getDiffs :: [DieValue] -> [DieValue] -> [DieValue]
 getDiffs attackerRolls defenderRolls =
     zipWith (-) attackerRolls defenderRolls
+
+invade :: Battlefield -> Rand StdGen Battlefield
+invade bf@(Battlefield a d) =
+    if (d <= 0 || a < 2) then pure bf else battle bf >>= invade
+
+successProb :: Battlefield -> Rand StdGen Double
+successProb bf@(Battlefield a d) = do
+    invasions <- replicateM 1000 (invade bf)
+    let wins = length $ filter destroyed invasions 
+    pure $ ((fromIntegral wins) / 1000)
+
+destroyed (Battlefield na nd) = nd == 0
