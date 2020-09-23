@@ -34,8 +34,8 @@ battle (Battlefield a d) = do
     attackerRolls <- generateRolls $ maxAttacks a
     defenderRolls <- generateRolls $ maxDefends d
     let diffs = getDiffs attackerRolls defenderRolls
-        newAttackers = attackerWins diffs
-        newDefenders = defenderWins diffs
+        newAttackers = a + attackerWins diffs
+        newDefenders = d + defenderWins diffs
     pure $ Battlefield newAttackers newDefenders
 
 maxAttacks :: Army -> Army
