@@ -30,13 +30,19 @@ data Battlefield = Battlefield { attackers :: Army, defenders :: Army }
     deriving Show
 
 battle :: Battlefield -> Rand StdGen Battlefield
-battle (Battlefield {attackers=a, defenders=d}) = do
-    attackerRolls <- generateRolls a
-    defenderRolls <- generateRolls d
+battle (Battlefield a d) = do
+    attackerRolls <- generateRolls $ maxAttacks a
+    defenderRolls <- generateRolls $ maxDefends d
     let diffs = getDiffs attackerRolls defenderRolls
         newAttackers = attackerWins diffs
         newDefenders = defenderWins diffs
     pure $ Battlefield {attackers=newAttackers, defenders=newDefenders}
+
+maxAttacks :: Army -> Army
+maxAttacks a = min 3 (a - 1)
+
+maxDefends :: Army -> Army
+maxDefends d = min 2 d
 
 generateRolls :: Int -> Rand StdGen [DieValue]
 generateRolls numRolls = replicateM numRolls die >>= pure . reverse . sort
@@ -50,5 +56,3 @@ defenderWins = length . filter (<=0)
 getDiffs :: [DieValue] -> [DieValue] -> [DieValue]
 getDiffs attackerRolls defenderRolls =
     zipWith (-) attackerRolls defenderRolls
-
-
