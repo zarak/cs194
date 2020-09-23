@@ -36,7 +36,7 @@ battle (Battlefield a d) = do
     let diffs = getDiffs attackerRolls defenderRolls
         newAttackers = attackerWins diffs
         newDefenders = defenderWins diffs
-    pure $ Battlefield {attackers=newAttackers, defenders=newDefenders}
+    pure $ Battlefield newAttackers newDefenders
 
 maxAttacks :: Army -> Army
 maxAttacks a = min 3 (a - 1)
